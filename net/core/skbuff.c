@@ -2834,9 +2834,13 @@ EXPORT_SYMBOL(skb_dequeue_tail);
  */
 void skb_queue_purge(struct sk_buff_head *list)
 {
+	unsigned long flags;
 	struct sk_buff *skb;
-	while ((skb = skb_dequeue(list)) != NULL)
+
+	spin_lock_irqsave(&list->lock, flags);
+	while ((skb = __skb_dequeue(list)) != NULL)
 		kfree_skb(skb);
+	spin_unlock_irqrestore(&list->lock, flags);
 }
 EXPORT_SYMBOL(skb_queue_purge);
 
